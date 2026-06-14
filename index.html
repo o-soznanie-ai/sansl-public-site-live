@@ -2,16 +2,17 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>САНСЛ</title>
 <meta name="description" content="САНСЛ превращает намерение в фокус, помогает выбрать понятный маршрут действий и почувствовать прогресс." />
 <meta name="robots" content="noindex,nofollow" />
+<meta name="theme-color" content="#7399c8" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
+  html,body{height:100%;background:#7399c8}
   /* unified type scale - identical sizes per level across all sections */
   :root{
     --fs-kicker:13px;
@@ -20,10 +21,14 @@
     --ls-kicker:3px;
   }
   body{font-family:'Onest',-apple-system,"SF Pro Display",system-ui,sans-serif;
-    color:#fff;overflow:hidden;background:#e6b48f}
-  #bg{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+    color:#fff;overflow:hidden;background:linear-gradient(115deg,#6f98cf 0%,#d7aaa1 54%,#ee7145 100%)}
+  #bg{position:fixed;top:calc(0px - env(safe-area-inset-top,0px));left:0;
+    width:100%;height:calc(100dvh + env(safe-area-inset-top,0px) + env(safe-area-inset-bottom,0px));
+    display:block;z-index:0}
   /* readability scrim: softly darkens header strip + left text column so light text stays legible over light gradient zones */
-  .scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
+  .scrim{position:fixed;top:calc(0px - env(safe-area-inset-top,0px));left:0;right:0;
+    height:calc(100dvh + env(safe-area-inset-top,0px) + env(safe-area-inset-bottom,0px));
+    z-index:1;pointer-events:none;
     background:
       linear-gradient(to bottom, rgba(46,20,9,0.26), rgba(46,20,9,0) 20%),
       linear-gradient(100deg, rgba(46,20,9,0.24), rgba(46,20,9,0) 52%);}
