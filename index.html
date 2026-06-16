@@ -125,7 +125,33 @@
   .door::before{content:"";width:20px;height:1.5px;margin-top:.72em;border-radius:2px;
     background:rgba(255,255,255,.75);box-shadow:0 1px 10px rgba(70,30,12,.24)}
   .door .name{display:block;font-size:clamp(18px,2vw,23px);font-weight:800;line-height:1.08;
-    text-shadow:0 1px 14px rgba(70,30,12,.42)}
+    color:rgba(255,255,255,.98);text-shadow:0 1px 14px rgba(70,30,12,.42);
+    background:linear-gradient(102deg,#ffffff 0%,#a9d1ff 16%,#fff8f2 31%,#ffb9a5 48%,#ffffff 61%,#d7ebff 77%,#ffc9b9 100%);
+    background-size:190% 100%;background-position:130% 50%;
+    -webkit-background-clip:text;background-clip:text}
+  .section.is-scene-in .door:nth-child(1) .name{animation:doorNameFocus 14s cubic-bezier(.2,.8,.2,1) 3s infinite}
+  .section.is-scene-in .door:nth-child(2) .name{animation:doorNameFocus 14s cubic-bezier(.2,.8,.2,1) 6s infinite}
+  .section.is-scene-in .door:nth-child(3) .name{animation:doorNameFocus 14s cubic-bezier(.2,.8,.2,1) 9s infinite}
+  @keyframes doorNameFocus{
+    0%{color:rgba(255,255,255,.98);background-position:130% 50%;
+      -webkit-text-stroke:0 rgba(255,255,255,0);
+      text-shadow:0 1px 14px rgba(70,30,12,.42),0 0 0 rgba(255,236,220,0);filter:none}
+    .85%{color:transparent;background-position:104% 50%;
+      -webkit-text-stroke:.18px rgba(255,255,255,.48);
+      text-shadow:0 1px 14px rgba(70,30,12,.42),0 0 16px rgba(255,246,236,.20);
+      filter:drop-shadow(0 0 6px rgba(255,246,236,.12))}
+    2.8%{color:transparent;background-position:34% 50%;
+      -webkit-text-stroke:.22px rgba(255,255,255,.58);
+      text-shadow:0 1px 14px rgba(70,30,12,.42),0 0 24px rgba(218,235,255,.36),0 0 20px rgba(255,216,198,.32);
+      filter:drop-shadow(0 0 12px rgba(196,224,255,.24))}
+    7.15%{color:transparent;background-position:-18% 50%;
+      -webkit-text-stroke:.18px rgba(255,255,255,.50);
+      text-shadow:0 1px 14px rgba(70,30,12,.42),0 0 20px rgba(255,225,210,.28);
+      filter:drop-shadow(0 0 10px rgba(255,232,218,.18))}
+    8.2%,100%{color:rgba(255,255,255,.98);background-position:-80% 50%;
+      -webkit-text-stroke:0 rgba(255,255,255,0);
+      text-shadow:0 1px 14px rgba(70,30,12,.42);filter:none}
+  }
   .door .copy{display:block;font-size:var(--fs-body);line-height:1.38;margin-top:8px;opacity:.94;
     text-shadow:0 1px 12px rgba(70,30,12,.34)}
   .door.rv{transform:translateY(22px) scale(.975);filter:blur(4px)}
@@ -220,6 +246,26 @@
   .btn-ghost{color:#fff;background:rgba(255,255,255,0.18);border-color:rgba(255,255,255,0.46);
     backdrop-filter:blur(16px) saturate(130%);-webkit-backdrop-filter:blur(16px) saturate(130%);
     box-shadow:0 8px 26px rgba(70,30,12,.18),inset 0 1px 0 rgba(255,255,255,.32)}
+  .partnerProof{position:absolute;left:clamp(22px,4.5vw,56px);right:clamp(22px,4.5vw,56px);
+    bottom:calc(clamp(22px,4.6vh,42px) + env(safe-area-inset-bottom,0px));z-index:3;
+    display:flex;align-items:center;justify-content:space-between;gap:18px;width:min(720px,calc(100% - 44px));
+    padding:14px 18px;border-radius:22px;
+    background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.075));
+    border:1px solid rgba(255,255,255,.30);
+    box-shadow:0 16px 38px rgba(62,25,12,.13),inset 0 1px 0 rgba(255,255,255,.26);
+    backdrop-filter:blur(18px) saturate(126%);-webkit-backdrop-filter:blur(18px) saturate(126%);
+    opacity:0;transform:translateY(12px);filter:blur(3px);
+    transition:opacity .42s ease,transform .5s cubic-bezier(.2,.8,.2,1),filter .42s ease}
+  .section.is-scene-in .partnerProof{opacity:1;transform:none;filter:none;transition-delay:.28s}
+  .partnerProofLabel{font-size:11px;line-height:1.1;font-weight:800;letter-spacing:2.1px;text-transform:uppercase;
+    color:rgba(255,255,255,.68);white-space:nowrap;text-shadow:0 1px 8px rgba(70,30,12,.30)}
+  .partnerProofLogos{display:flex;align-items:center;justify-content:flex-end;gap:24px;min-width:0}
+  .partnerLogo{display:flex;align-items:center;justify-content:center;min-width:0}
+  .partnerLogo img{display:block;max-width:100%;height:auto;max-height:28px;object-fit:contain;
+    filter:brightness(0) invert(1) drop-shadow(0 1px 8px rgba(70,30,12,.22));
+    opacity:.82}
+  .partnerLogoSk img{width:142px}
+  .partnerLogoMik img{width:172px}
 
   .rail{grid-column:2;grid-row:2;position:relative;align-self:center;height:100%;min-height:420px;display:none}
   .cubewrap{--c:clamp(168px,17vw,250px);position:absolute;top:6%;right:3%;
@@ -301,6 +347,7 @@
     .doors{margin-top:2px}
     .door{grid-template-columns:18px 1fr;gap:12px;padding:13px 0}
     .door::before{width:18px}
+    .door .name{font-size:clamp(18px,6vw,23px)}
     .s-human-graph .hero{gap:14px;margin-top:4px;max-width:100%}
     .s-human-graph .sub{max-width:330px;line-height:1.42}
     .hgePanel{width:calc(100% + 44px);height:456px;margin:-2px -22px 0;padding:0;border:0;border-radius:0;
@@ -363,6 +410,12 @@
     .hgeStackDots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:9px;z-index:5}
     .hgeStackDot{width:7px;height:7px;border:0;border-radius:999px;padding:0;background:rgba(255,255,255,.40);font-size:0;transition:width .22s ease,background .22s ease}
     .hgeStackDot.is-active{width:22px;background:rgba(255,255,255,.84)}
+    .partnerProof{left:22px;right:22px;bottom:calc(18px + env(safe-area-inset-bottom,0px));
+      width:auto;padding:12px 13px;border-radius:18px;gap:10px;align-items:flex-start;flex-direction:column}
+    .partnerProofLabel{font-size:9px;letter-spacing:1.7px}
+    .partnerProofLogos{width:100%;justify-content:space-between;gap:12px}
+    .partnerLogoSk img{width:112px}
+    .partnerLogoMik img{width:154px;max-height:24px}
   }
 
   /* ===================== entry intro + full-page snap scroll ===================== */
@@ -441,8 +494,10 @@
     .intro,.topbar,.scrolldown,.intro-tag{animation-delay:.1s!important}
     .scrolldown svg{animation:none}
     .intro-logo,.intro-logo.is-pulsing,.intro-logo.is-pulsing line,.mark,.mark line{animation:none;-webkit-mask:none;mask:none}
+    .section.is-scene-in .door .name{animation:none}
     .lifeRoute,.lifeRouteStep{transition:none;opacity:1;transform:none;filter:none}
     .lifeRoutePath,.lifeRouteGhost{stroke-dashoffset:0;animation:none}
+    .partnerProof{transition:none;opacity:1;transform:none;filter:none}
   }
 
 </style>
@@ -718,6 +773,17 @@
           Войти в лист ожидания
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.43 5.93 20.5 12l-6.07 6.07"/><path d="M3.5 12h16.83"/></svg>
         </button>
+      </div>
+    </div>
+    <div class="partnerProof" aria-label="Статусы проекта">
+      <div class="partnerProofLabel">Статусы проекта</div>
+      <div class="partnerProofLogos">
+        <a class="partnerLogo partnerLogoSk" href="https://sk.ru/" target="_blank" rel="noopener" aria-label="Участник Сколково">
+          <img src="assets/partners/skolkovo-participant-mono-ru.png" alt="Участник Сколково" decoding="async" loading="lazy">
+        </a>
+        <a class="partnerLogo partnerLogoMik" href="https://i.moscow/" target="_blank" rel="noopener" aria-label="Участник Московского инновационного кластера">
+          <img src="assets/partners/mik-logo.png" alt="Участник Московского инновационного кластера" decoding="async" loading="lazy">
+        </a>
       </div>
     </div>
   </section>
