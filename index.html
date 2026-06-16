@@ -9,6 +9,11 @@
 <meta name="theme-color" content="#7798c4" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="assets/hge-statue-01.jpg?v=20260616-cards" as="image">
+<link rel="preload" href="assets/hge-statue-02.jpg?v=20260616-cards" as="image">
+<link rel="preload" href="assets/hge-statue-03.jpg?v=20260616-cards" as="image">
+<link rel="preload" href="assets/hge-statue-04.jpg?v=20260616-cards" as="image">
+<link rel="preload" href="assets/hge-statue-05.jpg?v=20260616-cards" as="image">
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -37,7 +42,15 @@
     grid-template-rows:auto 1fr auto;gap:10px;padding:clamp(22px,4.5vw,56px)}
   .top{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between}
   .wordmark{display:flex;align-items:center;gap:12px}
-  .mark{width:42px;height:42px;display:block;overflow:visible;filter:drop-shadow(0 3px 8px rgba(40,18,8,.22))}
+  .mark{width:42px;height:42px;display:block;overflow:visible;filter:drop-shadow(0 3px 8px rgba(40,18,8,.22));
+    transform-origin:50% 50%;will-change:filter,transform}
+  .mark line{will-change:stroke,stroke-width,filter,stroke-dashoffset}
+  .mark.is-cube-pulsing{animation:introCubePulse 1.35s cubic-bezier(.16,1.08,.28,1) both}
+  .mark.is-cube-pulsing line{animation:introCubeLinePulse 1.35s cubic-bezier(.16,1.08,.28,1) both}
+  .cubeEraser{opacity:0;pointer-events:none}
+  .cubeEraser.is-active{opacity:0}
+  .cubeEraserHalo{fill:rgba(255,248,235,.22)}
+  .cubeEraserCore{fill:rgba(255,255,255,.74);stroke:rgba(255,255,255,.64);stroke-width:.9}
   .wordmark b{font-size:22px;letter-spacing:3px;font-weight:700;text-shadow:0 1px 4px rgba(40,18,8,.55),0 2px 22px rgba(40,18,8,.45)}
   .nav{display:flex;gap:10px}
   /* volumetric glass button: vertical gradient + top rim highlight + bottom inner shadow + drop shadow */
@@ -68,44 +81,93 @@
     text-shadow:0 1px 14px rgba(70,30,12,.4)}
   .values li::before{content:"";width:20px;height:1.5px;border-radius:2px;flex:0 0 auto;
     background:rgba(255,255,255,.75)}
+  .routeLead{font-size:13px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;opacity:.94;
+    text-shadow:0 1px 14px rgba(70,30,12,.46)}
+  .lifeRoute{position:relative;width:min(100%,530px);height:292px;margin-top:-4px;opacity:0;filter:blur(3px);
+    transform:translateY(12px);transition:opacity .36s ease,transform .42s cubic-bezier(.2,.8,.2,1),filter .36s ease}
+  .section.is-scene-in .lifeRoute{opacity:1;filter:blur(0);transform:none;transition-delay:.46s}
+  .lifeRouteLine{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;filter:drop-shadow(0 2px 12px rgba(70,30,12,.25))}
+  .lifeRoutePath,.lifeRouteGhost{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;
+    transform-box:fill-box;transform-origin:center}
+  .lifeRoutePath{stroke:rgba(255,255,255,.88);stroke-width:1.08;filter:url(#routeHand)}
+  .lifeRouteGhost{stroke:rgba(255,238,218,.40);stroke-width:2.9;filter:url(#routeHand);opacity:.76}
+  .section.is-scene-in .lifeRouteSegment1{animation:routeDraw 1s cubic-bezier(.25,.78,.18,1) .98s both}
+  .section.is-scene-in .lifeRouteSegment2{animation:routeDraw 1s cubic-bezier(.25,.78,.18,1) 2.28s both}
+  .section.is-scene-in .lifeRouteSegment3{animation:routeDraw 1s cubic-bezier(.25,.78,.18,1) 3.58s both}
+  .lifeRouteStep{position:absolute;width:min(44%,210px);display:flex;flex-direction:column;gap:9px;color:#fff;opacity:0;
+    transform:translateY(12px) scale(.98);filter:blur(2px);
+    transition:opacity .32s ease,transform .42s cubic-bezier(.2,.8,.2,1),filter .32s ease}
+  .section.is-scene-in .lifeRouteStep{opacity:1;transform:none;filter:blur(0);transition-delay:var(--step-delay)}
+  .lifeRouteDot{position:relative;width:13px;height:12px;border-radius:58% 42% 54% 46% / 47% 56% 44% 53%;
+    background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.76);
+    box-shadow:0 0 0 6px rgba(255,255,255,.10),0 0 22px rgba(255,245,230,.40),0 4px 16px rgba(62,26,10,.24);
+    transform:rotate(var(--dot-tilt,-4deg));transform-origin:50% 50%}
+  .lifeRouteDot::after{content:"";position:absolute;inset:1px 2px 2px 1px;border-radius:45% 55% 48% 52% / 55% 46% 54% 45%;
+    border:1px solid rgba(255,255,255,.24);transform:rotate(16deg)}
+  .lifeRouteText{font-size:15px;line-height:1.14;font-weight:650;letter-spacing:.01em;
+    text-shadow:0 1px 10px rgba(70,30,12,.48),0 3px 18px rgba(70,30,12,.32)}
+  .lifeRouteStep1{left:2px;top:8%;align-items:flex-start;text-align:left;--step-delay:.74s}
+  .lifeRouteStep2{right:2px;top:32%;align-items:flex-end;text-align:right;--step-delay:2.04s;--dot-tilt:7deg}
+  .lifeRouteStep3{left:2px;top:56%;align-items:flex-start;text-align:left;--step-delay:3.34s;--dot-tilt:-8deg}
+  .lifeRouteStep4{right:2px;top:80%;align-items:flex-end;text-align:right;width:min(52%,245px);--step-delay:4.64s;--dot-tilt:5deg}
+  @keyframes routeDraw{to{stroke-dashoffset:0}}
   /* time-of-day list */
   .day{list-style:none;display:flex;flex-direction:column;margin-top:4px;max-width:460px}
   .day li{display:flex;gap:16px;align-items:baseline;padding:13px 0;border-top:1px solid rgba(255,255,255,.18)}
   .day li:first-child{border-top:0}
   .day .when{flex:0 0 76px;font-weight:700;font-size:var(--fs-body);text-shadow:0 1px 12px rgba(70,30,12,.4)}
   .day .what{font-size:var(--fs-body);opacity:.95;line-height:1.45;text-shadow:0 1px 12px rgba(70,30,12,.4)}
-  .s-doors .hero{max-width:620px}
-  .doors{list-style:none;display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:4px;width:min(100%,620px)}
-  .door{width:100%;height:118px;padding:18px 20px;border-radius:22px;display:flex;flex-direction:column;justify-content:center;
-    background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.09));
-    border:1px solid rgba(255,255,255,.44);
-    backdrop-filter:blur(20px) saturate(135%);-webkit-backdrop-filter:blur(20px) saturate(135%);
-    box-shadow:0 14px 34px rgba(70,30,12,.18),inset 0 1px 0 rgba(255,255,255,.42)}
-  .door .name{display:block;font-size:clamp(20px,2.2vw,24px);font-weight:700;line-height:1.1;
+  .s-doors .hero{max-width:680px}
+  .doors{list-style:none;display:flex;flex-direction:column;gap:0;margin-top:6px;width:min(100%,620px)}
+  .door{display:grid;grid-template-columns:20px 1fr;gap:16px;align-items:start;padding:16px 0;
+    border-top:1px solid rgba(255,255,255,.18)}
+  .door:first-child{border-top:0}
+  .door::before{content:"";width:20px;height:1.5px;margin-top:.72em;border-radius:2px;
+    background:rgba(255,255,255,.75);box-shadow:0 1px 10px rgba(70,30,12,.24)}
+  .door .name{display:block;font-size:clamp(18px,2vw,23px);font-weight:800;line-height:1.08;
     text-shadow:0 1px 14px rgba(70,30,12,.42)}
-  .door .copy{display:block;font-size:14px;line-height:1.45;margin-top:10px;opacity:.94;text-shadow:0 1px 12px rgba(70,30,12,.34)}
+  .door .copy{display:block;font-size:var(--fs-body);line-height:1.38;margin-top:8px;opacity:.94;
+    text-shadow:0 1px 12px rgba(70,30,12,.34)}
   .door.rv{transform:translateY(22px) scale(.975);filter:blur(4px)}
   .door.rv.rv-in{transform:none;filter:blur(0)}
-  .hgePanel{position:relative;width:min(100%,640px);height:366px;margin-top:22px;padding:10px;border-radius:24px;
-    background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.44);
-    backdrop-filter:blur(24px) saturate(138%);-webkit-backdrop-filter:blur(24px) saturate(138%);
-    box-shadow:0 20px 56px rgba(62,25,12,.20),inset 0 1px 0 rgba(255,255,255,.44);
+  .hgePanel{position:relative;width:min(100%,700px);height:388px;margin-top:22px;padding:12px;border-radius:24px;
+    background:
+      radial-gradient(110% 115% at 78% 28%,rgba(255,116,84,.30),transparent 42%),
+      radial-gradient(95% 110% at 84% 74%,rgba(121,163,255,.26),transparent 46%),
+      linear-gradient(160deg,rgba(255,255,255,.18),rgba(255,255,255,.07));
+    border:1px solid rgba(255,255,255,.42);
+    backdrop-filter:blur(26px) saturate(142%);-webkit-backdrop-filter:blur(26px) saturate(142%);
+    box-shadow:0 24px 64px rgba(62,25,12,.19),inset 0 1px 0 rgba(255,255,255,.46);
     overflow:hidden}
-  .hgeRows,.hgeDetail{position:absolute;inset:10px;transition:transform .42s cubic-bezier(.2,.8,.2,1),opacity .28s ease}
+  .hgePanel::before{content:"";position:absolute;right:18px;top:34px;width:260px;height:260px;border-radius:44% 56% 48% 52%;
+    background:
+      radial-gradient(circle at 36% 34%,rgba(255,255,255,.95) 0 2px,transparent 3px),
+      radial-gradient(circle at 64% 28%,rgba(255,210,190,.95) 0 2px,transparent 3px),
+      radial-gradient(circle at 72% 68%,rgba(170,198,255,.9) 0 2px,transparent 3px),
+      repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.24) 0 1px,transparent 1px 18px),
+      conic-gradient(from 240deg,rgba(255,185,150,.28),rgba(150,178,255,.34),rgba(255,255,255,.16),rgba(255,185,150,.28));
+    filter:drop-shadow(0 28px 42px rgba(48,22,14,.20));opacity:.82;transform:rotate(-10deg)}
+  .hgePanel::after{content:"";position:absolute;right:72px;top:78px;width:170px;height:170px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.34);box-shadow:0 0 0 22px rgba(255,255,255,.045),0 0 70px rgba(255,166,126,.22);
+    transform:rotateX(62deg) rotateZ(-24deg);opacity:.76}
+  .hgeRows,.hgeDetail{position:absolute;inset:12px;transition:transform .42s cubic-bezier(.2,.8,.2,1),opacity .28s ease}
   .hgeRows{display:grid;gap:7px}
+  .hgeRows{right:auto;width:min(370px,56%);z-index:2}
   .hgePanel.is-detail .hgeRows{transform:translateX(-112%);opacity:0;pointer-events:none}
-  .hgeRow{width:100%;min-height:64px;border:1px solid rgba(255,255,255,.22);border-radius:17px;
-    background:rgba(255,255,255,.09);color:#fff;display:grid;grid-template-columns:1fr 24px;
+  .hgeRow{width:100%;min-height:64px;border:1px solid rgba(255,255,255,.24);border-radius:17px;
+    background:linear-gradient(140deg,rgba(255,255,255,.18),rgba(255,255,255,.07));color:#fff;display:grid;grid-template-columns:1fr 24px;
     gap:9px;align-items:center;text-align:left;padding:13px 11px;cursor:pointer;font:inherit;
-    transition:background .2s ease,border-color .2s ease,transform .2s ease}
-  .hgeRow[aria-selected="true"]{background:rgba(255,255,255,.17);border-color:rgba(255,255,255,.48)}
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 10px 22px rgba(48,21,12,.08);
+    transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease}
+  .hgeRow[aria-selected="true"]{background:linear-gradient(140deg,rgba(255,255,255,.28),rgba(255,235,222,.12));
+    border-color:rgba(255,255,255,.54);box-shadow:0 16px 28px rgba(48,21,12,.13),inset 0 1px 0 rgba(255,255,255,.38)}
   .hgeRowName{font-size:17px;font-weight:800;line-height:1.12;text-shadow:0 1px 10px rgba(48,21,12,.28)}
   .hgeArrow{width:24px;height:24px;display:grid;place-items:center;transition:transform .2s ease;opacity:.9}
   .hgeArrow::before{content:"";width:8px;height:8px;border-right:2px solid currentColor;border-top:2px solid currentColor;
     transform:rotate(45deg) translate(-1px,1px)}
   .hgeRow[aria-selected="true"] .hgeArrow{transform:translateX(3px)}
-  .hgeDetail{border-radius:18px;border:1px solid rgba(255,255,255,.25);
-    background:rgba(255,255,255,.10);padding:22px;display:flex;flex-direction:column;
+  .hgeDetail{z-index:4;border-radius:18px;border:1px solid rgba(255,255,255,.28);
+    background:linear-gradient(150deg,rgba(255,255,255,.20),rgba(255,255,255,.09));padding:22px;display:flex;flex-direction:column;
     align-items:stretch;justify-content:flex-start;text-align:left;
     transform:translateX(112%);opacity:0;pointer-events:none}
   .hgePanel.is-detail .hgeDetail{transform:translateX(0);opacity:1;pointer-events:auto}
@@ -121,6 +183,10 @@
     text-shadow:0 1px 9px rgba(48,21,12,.23)}
   .hgeDetailList li::before{content:"";width:20px;height:1.5px;border-radius:2px;background:rgba(255,255,255,.75);
     flex:0 0 auto}
+  .hgeStack{display:none}
+  .hgeStackTrack{display:flex}
+  .hgeStackCard{position:relative}
+  .hgeStackCard ul{list-style:none;margin:0;padding:0}
   /* on-enter reveal: text/lists fade-up with stagger; headline decodes (see JS) */
   .rv{opacity:0;transform:translateY(11px);filter:blur(3px);
     transition:opacity .34s ease,transform .4s cubic-bezier(.2,.8,.2,1),filter .34s ease}
@@ -226,23 +292,83 @@
     .hero{grid-column:1;grid-row:2;align-self:start;margin-top:18px}   /* tighten gap after header */
     .foot{grid-row:3}
     .chip-product{display:none}   /* mobile: keep only the "Лист ожидания" chip */
-    .doors{gap:10px}
-    .door{height:112px;padding:15px 16px}
-    .hgePanel{height:356px;margin-top:18px;border-radius:22px}
-    .hgeRows{gap:7px}
-    .hgeRow{min-height:61px;padding:13px 10px;gap:8px}
-    .hgeRowName{font-size:16.5px}
-    .hgeDetail{padding:18px}
-    .hgeDetailHead{gap:11px}
-    .hgeDetailTitle{font-size:18px}
-    .hgeDetailList{gap:17px;min-height:188px;margin-top:30px}
-    .hgeDetailList li{font-size:18px}
+    .s-hero .hero{gap:16px}
+    .routeLead{font-size:12px;letter-spacing:2.3px}
+    .lifeRoute{height:282px;width:100%;margin-top:-2px}
+    .lifeRouteStep{width:47%;gap:8px}
+    .lifeRouteText{font-size:14px;line-height:1.13}
+    .lifeRouteStep4{width:58%}
+    .doors{margin-top:2px}
+    .door{grid-template-columns:18px 1fr;gap:12px;padding:13px 0}
+    .door::before{width:18px}
+    .s-human-graph .hero{gap:14px;margin-top:4px;max-width:100%}
+    .s-human-graph .sub{max-width:330px;line-height:1.42}
+    .hgePanel{width:calc(100% + 44px);height:456px;margin:-2px -22px 0;padding:0;border:0;border-radius:0;
+      background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;overflow:visible}
+    .hgePanel::before,.hgePanel::after,.hgeRows,.hgeDetail{display:none}
+    .hgeStack{display:block;position:relative;height:100%;perspective:980px;overflow:hidden}
+    .hgeStack::before{display:none}
+    .hgeStackTrack{position:absolute;inset:0;display:block;overflow:hidden;touch-action:pan-y;
+      transform-style:preserve-3d;user-select:none;-webkit-user-select:none}
+    .hgeStackTrack::-webkit-scrollbar{display:none}
+    .hgeStackCard{--turn:0deg;--lift:16px;--scale:.78;--fog:1;--blur:2px;--x:0px;--art-pos:50% 50%;
+      position:absolute;left:50%;top:50%;width:min(82vw,330px);height:390px;color:#fff;
+      transform:translate(-50%,-50%) translateX(var(--x)) translateY(var(--lift)) rotateY(var(--turn)) scale(var(--scale));
+      opacity:calc(1 - var(--fog));filter:blur(var(--blur));transition:transform .34s cubic-bezier(.2,.8,.2,1),opacity .28s ease,filter .28s ease;
+      transform-style:preserve-3d;isolation:isolate;pointer-events:none}
+    .hgeStackCard.is-active{--x:0px;--turn:0deg;--lift:-6px;--scale:1;--fog:0;--blur:0px;z-index:4;pointer-events:auto}
+    .hgeStackCard.is-prev{--x:calc(-1 * min(88.6vw,346px));--turn:0deg;--lift:-3px;--scale:.98;--fog:.68;--blur:.7px;transform-origin:100% 50%;z-index:2}
+    .hgeStackCard.is-next{--x:min(88.6vw,346px);--turn:0deg;--lift:-3px;--scale:.98;--fog:.68;--blur:.7px;transform-origin:0 50%;z-index:2}
+    .hgeStackCard.is-far{--x:0px;--turn:0deg;--lift:28px;--scale:.72;--fog:1;--blur:2.2px;z-index:1}
+    .hgeCardShell{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 20px 22px;border-radius:28px;overflow:hidden;
+      background:
+        linear-gradient(137deg,rgba(255,255,255,.16),rgba(255,255,255,.06) 44%,rgba(255,255,255,.03)),
+        radial-gradient(82% 58% at 28% 0%,rgba(210,160,150,.10),transparent 68%),
+        radial-gradient(90% 70% at 92% 100%,rgba(83,118,160,.10),transparent 62%);
+      border:1px solid rgba(255,255,255,.42);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.42);
+      backdrop-filter:blur(24px) saturate(118%);-webkit-backdrop-filter:blur(24px) saturate(118%)}
+    .hgeCardShell::before{content:"";position:absolute;left:18px;right:18px;top:0;height:2px;border-radius:999px;
+      background:linear-gradient(90deg,rgba(122,160,205,.36),rgba(255,230,218,.72),rgba(206,128,116,.40));
+      box-shadow:0 0 14px rgba(214,150,134,.24);z-index:5}
+    .hgeCardShell::after{content:"";position:absolute;inset:0;border-radius:inherit;
+      background:
+        radial-gradient(82% 78% at 18% 12%,rgba(255,255,255,.08),transparent 58%),
+        radial-gradient(80% 60% at 100% 20%,rgba(255,255,255,.06),transparent 64%);
+      pointer-events:none;z-index:2}
+    .hgeCardMeta{position:absolute;right:18px;top:18px;z-index:4;font-size:12px;
+      line-height:1;font-weight:800;letter-spacing:1.4px;color:rgba(255,255,255,.90);
+      -webkit-text-stroke:.16px rgba(38,30,27,.26);
+      text-shadow:0 1px 2px rgba(34,27,24,.34),0 8px 20px rgba(25,20,22,.34)}
+    .hgeCardArt{position:absolute;inset:0;z-index:1;margin:0;border-radius:inherit;overflow:hidden;opacity:1}
+    .hgeCardArt::after{content:"";position:absolute;inset:0;pointer-events:none;
+      background:
+        linear-gradient(180deg,rgba(46,38,36,.30) 0%,rgba(50,42,40,.20) 14%,rgba(50,42,40,0) 35%),
+        linear-gradient(0deg,rgba(42,36,38,.34) 0%,rgba(50,44,45,.24) 30%,rgba(50,44,45,0) 57%);
+      mix-blend-mode:multiply}
+    .hgeCardArt img{width:100%;height:100%;object-fit:cover;object-position:var(--art-pos);display:block;
+      filter:saturate(.66) contrast(1.02) brightness(.96)}
+    .hgeCardTitle{position:absolute;left:20px;right:82px;top:16px;z-index:4;margin:0;
+      font-size:26px;line-height:1.04;font-weight:750;letter-spacing:0;color:rgba(255,255,255,.94);
+      -webkit-text-stroke:.22px rgba(38,30,27,.28);
+      text-shadow:0 1px 2px rgba(34,27,24,.38),0 8px 24px rgba(25,20,22,.42)}
+    .hgeStackCard[data-title="Решения и прогресс"] .hgeCardTitle{font-size:26px;line-height:1.04}
+    .hgeCardList{position:relative;z-index:4;display:flex;flex-direction:column;gap:5px;margin-top:auto}
+    .hgeCardList li{display:flex;align-items:center;padding-top:6px;border-top:1px solid rgba(255,255,255,.24);
+      font-size:16px;line-height:1.08;font-weight:650;color:rgba(255,255,255,.96);
+      -webkit-text-stroke:.16px rgba(38,30,27,.25);
+      text-shadow:0 1px 2px rgba(34,27,24,.36),0 7px 18px rgba(25,20,22,.40)}
+    .hgeCardList li:first-child{padding-top:0;border-top:0}
+    .hgeCardList li::before{display:none}
+    .hgeStackDots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:9px;z-index:5}
+    .hgeStackDot{width:7px;height:7px;border:0;border-radius:999px;padding:0;background:rgba(255,255,255,.40);font-size:0;transition:width .22s ease,background .22s ease}
+    .hgeStackDot.is-active{width:22px;background:rgba(255,255,255,.84)}
   }
 
   /* ===================== entry intro + full-page snap scroll ===================== */
   body{overflow:hidden}
   /* white screen that softly reveals the background */
-  .intro{position:fixed;inset:0;z-index:40;background:#fff;animation:introFade 1.6s ease forwards}
+  .intro{position:fixed;inset:0;z-index:40;background:#fff;pointer-events:none;animation:introFade 1.6s ease forwards}
   @keyframes introFade{0%{opacity:1}100%{opacity:0;visibility:hidden}}
   /* fixed header, fades in after the intro assembles */
   .topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:space-between;
@@ -251,8 +377,11 @@
     animation:topbarIn .8s ease forwards;animation-delay:3s}
   @keyframes topbarIn{to{opacity:1;pointer-events:auto}}
   /* snap scroller: one swipe = one section */
+  body.is-intro-lock .scroll{overflow:hidden;touch-action:none}
+  body.is-intro-lock .scrolldown{pointer-events:none}
   .scroll{position:relative;z-index:10;height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;
     scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .scroll.is-hge-card-swiping{overflow:hidden;scroll-snap-type:none;overscroll-behavior:contain}
   .scroll::-webkit-scrollbar{display:none}
   .section{position:relative;min-height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;
     display:flex;flex-direction:column;justify-content:center;
@@ -311,11 +440,14 @@
     .dot{animation-duration:.01s;animation-delay:0s!important}
     .intro,.topbar,.scrolldown,.intro-tag{animation-delay:.1s!important}
     .scrolldown svg{animation:none}
-    .intro-logo,.intro-logo.is-pulsing,.intro-logo.is-pulsing line{animation:none;-webkit-mask:none;mask:none}
+    .intro-logo,.intro-logo.is-pulsing,.intro-logo.is-pulsing line,.mark,.mark line{animation:none;-webkit-mask:none;mask:none}
+    .lifeRoute,.lifeRouteStep{transition:none;opacity:1;transform:none;filter:none}
+    .lifeRoutePath,.lifeRouteGhost{stroke-dashoffset:0;animation:none}
   }
+
 </style>
 </head>
-<body>
+<body class="is-intro-lock">
 <canvas id="bg"></canvas>
 <div class="scrim"></div>
 <div class="intro"></div>
@@ -361,20 +493,6 @@
         <li>легко потерять намерение</li>
         <li>большой план не превращается в действие</li>
       </ul>
-    </div>
-  </section>
-
-  <section class="section s-hero">
-    <div class="hero">
-      <div class="kicker">твой life-OS</div>
-      <h1>Играй в свою жизнь</h1>
-      <div class="sub">САНСЛ превращает намерение в фокус, помогает выбрать понятный маршрут действий и почувствовать прогресс.<br><br>Всё просто:</div>
-      <ul class="values">
-        <li>намерение</li>
-        <li>фокус</li>
-        <li>выбор маршрута</li>
-        <li>ощущение контроля над своим днём</li>
-      </ul>
       <div class="cta">
         <button class="btn btn-primary">
           Войти в лист ожидания
@@ -385,10 +503,51 @@
     </div>
   </section>
 
+  <section class="section s-hero">
+    <div class="hero">
+      <div class="kicker">твой life-OS</div>
+      <h1>Играй в свою жизнь</h1>
+      <div class="sub">САНСЛ превращает намерение в фокус, помогает выбрать понятный маршрут действий и почувствовать прогресс.</div>
+      <div class="routeLead">Всё просто</div>
+      <div class="lifeRoute" aria-label="Маршрут: намерение, фокус, выбор маршрута, ощущение контроля над своим днём">
+        <svg class="lifeRouteLine" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <filter id="routeHand" x="-10%" y="-10%" width="120%" height="120%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="11" result="n"/>
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="1.7" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+          </defs>
+          <path class="lifeRouteGhost lifeRouteSegment1" pathLength="1" d="M 2.5 10 H 97.5 V 34"/>
+          <path class="lifeRoutePath lifeRouteSegment1" pathLength="1" d="M 2.5 10 H 97.5 V 34"/>
+          <path class="lifeRouteGhost lifeRouteSegment2" pathLength="1" d="M 97.5 34 H 2.5 V 58"/>
+          <path class="lifeRoutePath lifeRouteSegment2" pathLength="1" d="M 97.5 34 H 2.5 V 58"/>
+          <path class="lifeRouteGhost lifeRouteSegment3" pathLength="1" d="M 2.5 58 H 97.5 V 82"/>
+          <path class="lifeRoutePath lifeRouteSegment3" pathLength="1" d="M 2.5 58 H 97.5 V 82"/>
+        </svg>
+        <div class="lifeRouteStep lifeRouteStep1">
+          <span class="lifeRouteDot"></span>
+          <span class="lifeRouteText">намерение</span>
+        </div>
+        <div class="lifeRouteStep lifeRouteStep2">
+          <span class="lifeRouteDot"></span>
+          <span class="lifeRouteText">фокус</span>
+        </div>
+        <div class="lifeRouteStep lifeRouteStep3">
+          <span class="lifeRouteDot"></span>
+          <span class="lifeRouteText">выбор маршрута</span>
+        </div>
+        <div class="lifeRouteStep lifeRouteStep4">
+          <span class="lifeRouteDot"></span>
+          <span class="lifeRouteText">ощущение контроля<br>над своим днём</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="section s-doors">
     <div class="hero">
       <div class="kicker">Три двери</div>
-      <h1>САНСЛ открывает три квеста</h1>
+      <h1>САНСЛ предлагает три пути</h1>
       <div class="sub">САНСЛ понимает твоё намерение, состояние и настроение - и предлагает три персональных маршрута:</div>
       <ul class="doors">
         <li class="door">
@@ -453,6 +612,86 @@
             <li>привычки</li>
           </ul>
         </div>
+        <div class="hgeStack" aria-label="Карточки Human Graph Engine">
+          <div class="hgeStackTrack" tabindex="0" aria-live="polite">
+            <article class="hgeStackCard is-active" data-index="01 / 05" data-title="Характеристики" style="--art-pos:50% 24%">
+              <div class="hgeCardShell">
+                <div class="hgeCardMeta">
+                  <span>01 / 05</span>
+                </div>
+                <div class="hgeCardArt"><img src="assets/hge-statue-01.jpg?v=20260616-cards" alt="" decoding="async" fetchpriority="high"></div>
+                <h2 class="hgeCardTitle">Характеристики</h2>
+                <ul class="hgeCardList">
+                  <li>тело</li>
+                  <li>мышление</li>
+                  <li>энергия</li>
+                  <li>привычки</li>
+                </ul>
+              </div>
+            </article>
+            <article class="hgeStackCard is-next" data-index="02 / 05" data-title="Роли" style="--art-pos:55% 38%">
+              <div class="hgeCardShell">
+                <div class="hgeCardMeta">
+                  <span>02 / 05</span>
+                </div>
+                <div class="hgeCardArt"><img src="assets/hge-statue-02.jpg?v=20260616-cards" alt="" decoding="async"></div>
+                <h2 class="hgeCardTitle">Роли</h2>
+                <ul class="hgeCardList">
+                  <li>я</li>
+                  <li>семья</li>
+                  <li>работа</li>
+                  <li>близкие</li>
+                </ul>
+              </div>
+            </article>
+            <article class="hgeStackCard is-far" data-index="03 / 05" data-title="Цели" style="--art-pos:50% 30%">
+              <div class="hgeCardShell">
+                <div class="hgeCardMeta">
+                  <span>03 / 05</span>
+                </div>
+                <div class="hgeCardArt"><img src="assets/hge-statue-03.jpg?v=20260616-cards" alt="" decoding="async"></div>
+                <h2 class="hgeCardTitle">Цели</h2>
+                <ul class="hgeCardList">
+                  <li>намерения</li>
+                  <li>интересы</li>
+                  <li>мечты</li>
+                  <li>важные события</li>
+                </ul>
+              </div>
+            </article>
+            <article class="hgeStackCard is-far" data-index="04 / 05" data-title="Состояния" style="--art-pos:50% 24%">
+              <div class="hgeCardShell">
+                <div class="hgeCardMeta">
+                  <span>04 / 05</span>
+                </div>
+                <div class="hgeCardArt"><img src="assets/hge-statue-04.jpg?v=20260616-cards" alt="" decoding="async"></div>
+                <h2 class="hgeCardTitle">Состояния</h2>
+                <ul class="hgeCardList">
+                  <li>настроение</li>
+                  <li>фокус</li>
+                  <li>ресурс</li>
+                  <li>тревога</li>
+                </ul>
+              </div>
+            </article>
+            <article class="hgeStackCard is-far" data-index="05 / 05" data-title="Решения и прогресс" style="--art-pos:48% 42%">
+              <div class="hgeCardShell">
+                <div class="hgeCardMeta">
+                  <span>05 / 05</span>
+                </div>
+                <div class="hgeCardArt"><img src="assets/hge-statue-05.jpg?v=20260616-cards" alt="" decoding="async"></div>
+                <h2 class="hgeCardTitle">Решения и прогресс</h2>
+                <ul class="hgeCardList">
+                  <li>выбор</li>
+                  <li>действие</li>
+                  <li>квест</li>
+                  <li>результат</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+          <div class="hgeStackDots" aria-hidden="true"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -482,6 +721,7 @@
       </div>
     </div>
   </section>
+
 </main>
 
 <script>
@@ -508,9 +748,14 @@
       const ln=document.createElementNS(NS,'line');
       ln.setAttribute('x1',a[0].toFixed(1));ln.setAttribute('y1',a[1].toFixed(1));
       ln.setAttribute('x2',b[0].toFixed(1));ln.setAttribute('y2',b[1].toFixed(1));
+      const len=Math.hypot(b[0]-a[0],b[1]-a[1]);
+      if(gId==='headerCubeG'){
+        ln.dataset.len=len.toFixed(2);
+        ln.style.strokeDasharray=len.toFixed(2);
+        ln.style.strokeDashoffset='0';
+      }
       g.appendChild(ln);
       if(!animate||reduce)return;
-      const len=Math.hypot(b[0]-a[0],b[1]-a[1]);
       ln.style.strokeDasharray=len; ln.style.strokeDashoffset=len;
       const delay=0.45+k*0.16;   // last line finishes ~2.5s, in sync with the word
       requestAnimationFrame(()=>requestAnimationFrame(()=>{
@@ -524,6 +769,135 @@
   }
   build('introCubeG', true);     // intro: hand-draws line by line
   build('headerCubeG', false);   // header: same cube, static
+  const headerCube=document.getElementById('headerCube');
+  const headerLines=[...document.querySelectorAll('#headerCubeG line')];
+  const headerEraser=(()=>{
+    if(!headerCube)return null;
+    const eraser=document.createElementNS(NS,'g');
+    eraser.setAttribute('id','headerCubeEraser');
+    eraser.setAttribute('class','cubeEraser');
+    eraser.setAttribute('transform','translate(-20 -20)');
+    const halo=document.createElementNS(NS,'circle');
+    halo.setAttribute('class','cubeEraserHalo');
+    halo.setAttribute('r','11');
+    const core=document.createElementNS(NS,'rect');
+    core.setAttribute('class','cubeEraserCore');
+    core.setAttribute('x','-7');
+    core.setAttribute('y','-4');
+    core.setAttribute('width','14');
+    core.setAttribute('height','8');
+    core.setAttribute('rx','2.5');
+    eraser.append(halo,core);
+    headerCube.appendChild(eraser);
+    return eraser;
+  })();
+  function lineMidpoint(line){
+    const x1=Number(line.getAttribute('x1')),y1=Number(line.getAttribute('y1'));
+    const x2=Number(line.getAttribute('x2')),y2=Number(line.getAttribute('y2'));
+    return {x:(x1+x2)/2,y:(y1+y2)/2};
+  }
+  function lineBounds(lines){
+    const xs=[],ys=[];
+    lines.forEach((line)=>{
+      xs.push(Number(line.getAttribute('x1')),Number(line.getAttribute('x2')));
+      ys.push(Number(line.getAttribute('y1')),Number(line.getAttribute('y2')));
+    });
+    return {
+      left:Math.min(...xs),
+      right:Math.max(...xs),
+      top:Math.min(...ys),
+      bottom:Math.max(...ys),
+      cx:(Math.min(...xs)+Math.max(...xs))/2,
+      cy:(Math.min(...ys)+Math.max(...ys))/2
+    };
+  }
+  function moveHeaderEraserStroke(lines,strokeIndex,duration){
+    if(!headerEraser||!lines.length)return;
+    const box=lineBounds(headerLines);
+    const margin=14;
+    const offset=(strokeIndex-1)*18;
+    const from={x:box.left-margin,y:box.top+10+offset};
+    const to={x:box.right+margin,y:box.bottom-10+offset};
+    const angle=Math.atan2(to.y-from.y,to.x-from.x)*180/Math.PI;
+    const start=performance.now();
+    function frame(now){
+      const t=Math.min(1,(now-start)/duration);
+      const ease=t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+      const x=from.x+(to.x-from.x)*ease;
+      const y=from.y+(to.y-from.y)*ease+Math.sin(t*Math.PI)*3.5;
+      headerEraser.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${angle.toFixed(1)})`);
+      if(t<1)requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  function eraseStroke(lines,strokeIndex,duration){
+    const box=lineBounds(headerLines);
+    const diagMin=box.left+box.top;
+    const diagMax=box.right+box.bottom;
+    const span=Math.max(1,diagMax-diagMin);
+    const eraseDuration=170;
+    moveHeaderEraserStroke(lines,strokeIndex,duration);
+    lines.forEach((ln)=>{
+      const mid=lineMidpoint(ln);
+      const progress=(mid.x+mid.y-diagMin)/span;
+      const delay=Math.max(0,Math.min(duration-eraseDuration,progress*(duration-eraseDuration)));
+      window.setTimeout(()=>{
+        ln.style.transition=`stroke-dashoffset ${eraseDuration}ms cubic-bezier(.45,0,.68,.18)`;
+        ln.style.strokeDashoffset=ln.dataset.len||'88';
+      },delay);
+    });
+  }
+  function pulseHeaderCube(){
+    headerCube.classList.remove('is-cube-pulsing');
+    void headerCube.getBoundingClientRect().width;
+    headerCube.classList.add('is-cube-pulsing');
+    window.setTimeout(()=>headerCube.classList.remove('is-cube-pulsing'),1350);
+  }
+  function redrawHeaderCube(){
+    if(reduce||!headerCube||!headerLines.length)return;
+    const strokeDuration=260, strokeGap=50;
+    const introDrawPause=450, introDrawStep=160, introDrawDuration=300;
+    const ranked=[...headerLines]
+      .map((line)=>{
+        const mid=lineMidpoint(line);
+        return {line,score:mid.y-mid.x};
+      })
+      .sort((a,b)=>a.score-b.score)
+      .map((item)=>item.line);
+    const strokes=[ranked.slice(0,4),ranked.slice(4,8),ranked.slice(8)];
+    headerLines.forEach((ln)=>{
+      ln.style.transition='none';
+      ln.style.strokeDashoffset='0';
+    });
+    headerCube.classList.remove('is-cube-pulsing');
+    if(headerEraser)headerEraser.classList.add('is-active');
+    strokes.forEach((stroke,k)=>{
+      window.setTimeout(()=>eraseStroke(stroke,k,strokeDuration),k*(strokeDuration+strokeGap));
+    });
+    const eraseEnd=strokes.length*strokeDuration+(strokes.length-1)*strokeGap+120;
+    window.setTimeout(()=>{
+      if(headerEraser){
+        headerEraser.classList.remove('is-active');
+        headerEraser.setAttribute('transform','translate(-20 -20)');
+      }
+    },eraseEnd);
+    const drawStart=eraseEnd+introDrawPause;
+    headerLines.forEach((ln,k)=>{
+      window.setTimeout(()=>{
+        ln.style.transition=`stroke-dashoffset ${introDrawDuration}ms ease`;
+        ln.style.strokeDashoffset='0';
+      },drawStart+k*introDrawStep);
+    });
+    const drawEnd=drawStart+(headerLines.length-1)*introDrawStep+introDrawDuration;
+    window.setTimeout(pulseHeaderCube,drawEnd+140);
+  }
+  if(!reduce&&headerLines.length){
+    const firstHeaderCycleDelay=Math.max(0,10000-performance.now());
+    window.setTimeout(()=>{
+      redrawHeaderCube();
+      window.setInterval(redrawHeaderCube,10000);
+    },firstHeaderCycleDelay);
+  }
 })();
 
 /* ---- "САНСЛ" assembly: each letter cycles random glyphs, then locks in random order ---- */
@@ -557,10 +931,34 @@
   // scroll-down hint advances one section on tap
   const sd=document.getElementById('scrolldown'), sc=document.getElementById('scroll');
   if(sd&&sc)sd.addEventListener('click',()=>{
+    if(document.body.classList.contains('is-intro-lock'))return;
     const secs=sc.querySelectorAll('.section');
     if(secs[1])secs[1].scrollIntoView({behavior:'smooth'});
   });
 })();
+
+/* ---- intro gate: keep vertical swipes locked while the opening assembly warms assets ---- */
+(function(){
+  const scroll=document.getElementById('scroll');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(scroll)scroll.setAttribute('aria-busy','true');
+  const preloadUrls=[...new Set(
+    [...document.images]
+      .map((img)=>img.currentSrc||img.getAttribute('src'))
+      .filter(Boolean)
+  )];
+  preloadUrls.forEach((url)=>{
+    const img=new Image();
+    img.decoding='async';
+    img.src=url;
+  });
+  const unlock=()=>{
+    document.body.classList.remove('is-intro-lock');
+    if(scroll)scroll.removeAttribute('aria-busy');
+  };
+  window.setTimeout(unlock,reduce?500:3300);
+})();
+
 /* ---- on-enter reveal: headline decode + staggered fade-up of the rest ---- */
 (function(){
   const scroll=document.getElementById('scroll');
@@ -568,7 +966,7 @@
   if(!scroll||!sections.length)return;
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const pool='ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯ'.split('');
-  const FADE='.kicker,.sub,.values li,.door,.hgePanel,.day li,.cta';
+  const FADE='.kicker,.sub,.routeLead,.values li,.door,.hgePanel,.day li,.cta';
   function decode(h){
     const final=h.dataset.final||h.textContent; h.dataset.final=final;
     // wrap each WORD in a fixed-width inline-block; line breaks stay at spaces -> identical wrapping to the original
@@ -599,14 +997,16 @@
     });
   }
   function hide(sec){
+    sec.classList.remove('is-scene-in');
     sec.querySelectorAll(FADE).forEach(el=>{el.classList.add('rv');el.classList.remove('rv-in');el.style.transitionDelay='0s';});
     const h=sec.querySelector('h1'); if(h){h.dataset.final=h.dataset.final||h.textContent;h.classList.add('rv-h');h.classList.remove('rv-in');}
   }
   function reveal(sec){
     sec.querySelectorAll(FADE).forEach((el,i)=>{el.style.transitionDelay=(0.05+i*0.045).toFixed(2)+'s';el.classList.add('rv-in');});
     const h=sec.querySelector('h1'); if(h){h.classList.add('rv-in');decode(h);}
+    requestAnimationFrame(()=>sec.classList.add('is-scene-in'));
   }
-  if(reduce){sections.forEach(s=>{decode(s.querySelector('h1')||document.createElement('h1'));s.querySelectorAll(FADE).forEach(e=>e.classList.add('rv-in'));});return;}
+  if(reduce){sections.forEach(s=>{s.classList.add('is-scene-in');decode(s.querySelector('h1')||document.createElement('h1'));s.querySelectorAll(FADE).forEach(e=>e.classList.add('rv-in'));});return;}
   sections.forEach(hide);
   const io=new IntersectionObserver((ents)=>{
     ents.forEach(e=>{
@@ -643,8 +1043,171 @@
       });
     });
     if(back)back.addEventListener('click',()=>panel.classList.remove('is-detail'));
+    const stack=panel.querySelector('.hgeStack');
+    const track=panel.querySelector('.hgeStackTrack');
+    const cards=track?[...track.querySelectorAll('.hgeStackCard')]:[];
+    const dots=panel.querySelector('.hgeStackDots');
+      if(stack&&track&&cards.length&&dots){
+        const scrollRoot=document.getElementById('scroll');
+        const snapSections=scrollRoot?[...scrollRoot.querySelectorAll('.section')]:[];
+        let activeIndex=0;
+        let startX=0,startY=0,tracking=false,lastWheelAt=0,gestureLocked=false;
+        let touchStartX=0,touchStartY=0,touchStartScroll=0,touchStartSectionIndex=0,touchTracking=false,touchAxis=null;
+        const wrap=(index)=>(index+cards.length)%cards.length;
+      function setActive(index){
+        activeIndex=wrap(index);
+        const prevIndex=wrap(activeIndex-1);
+        const nextIndex=wrap(activeIndex+1);
+        cards.forEach((card,i)=>{
+          card.classList.toggle('is-active',i===activeIndex);
+          card.classList.toggle('is-prev',i===prevIndex);
+          card.classList.toggle('is-next',i===nextIndex);
+          card.classList.toggle('is-far',i!==activeIndex&&i!==prevIndex&&i!==nextIndex);
+          card.setAttribute('aria-hidden',i===activeIndex?'false':'true');
+        });
+        [...dots.children].forEach((dot,i)=>dot.classList.toggle('is-active',i===activeIndex));
+      }
+      function move(delta){
+        if(gestureLocked)return;
+        gestureLocked=true;
+        setActive(activeIndex+delta);
+        window.setTimeout(()=>{gestureLocked=false;},560);
+      }
+      function wantsCardSwipe(dx,dy,ratio){
+        return Math.abs(dx)>14&&Math.abs(dx)>Math.abs(dy)*ratio;
+      }
+      function finishDelta(dx,dy){
+        if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*.72)move(dx<0?1:-1);
+      }
+      function nearestSectionIndex(scrollTop){
+        if(!snapSections.length)return 0;
+        let best=0;
+        let bestDelta=Infinity;
+        snapSections.forEach((section,index)=>{
+          const delta=Math.abs(section.offsetTop-scrollTop);
+          if(delta<bestDelta){bestDelta=delta;best=index;}
+        });
+        return best;
+      }
+      function movePageFromCard(dy){
+        if(!scrollRoot||!snapSections.length)return;
+        const targetIndex=Math.max(0,Math.min(snapSections.length-1,touchStartSectionIndex+(dy<0?1:-1)));
+        snapSections[targetIndex]?.scrollIntoView({behavior:'smooth'});
+      }
+      function lockPageSwipe(){
+        if(!scrollRoot)return;
+        scrollRoot.classList.add('is-hge-card-swiping');
+        scrollRoot.scrollTop=touchStartScroll;
+      }
+      function unlockPageSwipe(restore){
+        if(!scrollRoot)return;
+        if(restore)scrollRoot.scrollTop=touchStartScroll;
+        window.setTimeout(()=>{
+          scrollRoot.classList.remove('is-hge-card-swiping');
+          if(restore)scrollRoot.scrollTop=touchStartScroll;
+        },90);
+      }
+      function resolveTouchAxis(dx,dy){
+        const ax=Math.abs(dx);
+        const ay=Math.abs(dy);
+        if(touchAxis)return touchAxis;
+        if(ax<8&&ay<8)return null;
+        if(ax>ay*.62){
+          touchAxis='x';
+          lockPageSwipe();
+        }else if(ay>ax*1.35){
+          touchAxis='y';
+        }
+        return touchAxis;
+      }
+      cards.forEach((card,i)=>{
+        const dot=document.createElement('button');
+        dot.className='hgeStackDot';
+        dot.type='button';
+        dot.setAttribute('aria-label',`Показать ${card.dataset.title||'карточку'}`);
+        dot.addEventListener('click',()=>setActive(i));
+        dots.appendChild(dot);
+      });
+      track.addEventListener('pointerdown',(event)=>{
+        if(event.pointerType==='touch')return;
+        if(event.pointerType==='mouse'&&event.button!==0)return;
+        startX=event.clientX;
+        startY=event.clientY;
+        tracking=true;
+        track.setPointerCapture?.(event.pointerId);
+      });
+      track.addEventListener('pointermove',(event)=>{
+        if(!tracking)return;
+        const dx=event.clientX-startX;
+        const dy=event.clientY-startY;
+        if(wantsCardSwipe(dx,dy,.78))event.preventDefault();
+      },{passive:false});
+      function finishSwipe(event){
+        if(!tracking)return;
+        tracking=false;
+        const dx=event.clientX-startX;
+        const dy=event.clientY-startY;
+        finishDelta(dx,dy);
+      }
+      track.addEventListener('pointerup',finishSwipe);
+      track.addEventListener('pointercancel',()=>{tracking=false;});
+      track.addEventListener('touchstart',(event)=>{
+        if(event.touches.length!==1)return;
+        touchStartX=event.touches[0].clientX;
+        touchStartY=event.touches[0].clientY;
+        touchStartScroll=scrollRoot?scrollRoot.scrollTop:0;
+        touchStartSectionIndex=nearestSectionIndex(touchStartScroll);
+        touchAxis=null;
+        touchTracking=true;
+      },{passive:true});
+      track.addEventListener('touchmove',(event)=>{
+        if(!touchTracking||event.touches.length!==1)return;
+        const dx=event.touches[0].clientX-touchStartX;
+        const dy=event.touches[0].clientY-touchStartY;
+        const axis=resolveTouchAxis(dx,dy);
+        if(axis==='x'){
+          event.preventDefault();
+          lockPageSwipe();
+        }else if(axis==='y'&&scrollRoot){
+          event.preventDefault();
+          scrollRoot.scrollTop=touchStartScroll-dy;
+        }
+      },{passive:false});
+      track.addEventListener('touchend',(event)=>{
+        if(!touchTracking)return;
+        touchTracking=false;
+        const touch=event.changedTouches[0];
+        if(!touch){unlockPageSwipe(touchAxis==='x');touchAxis=null;return;}
+        const dx=touch.clientX-touchStartX;
+        const dy=touch.clientY-touchStartY;
+        if(touchAxis==='x'||wantsCardSwipe(dx,dy,.62))finishDelta(dx,dy);
+        else if(touchAxis==='y'&&Math.abs(dy)>46)movePageFromCard(dy);
+        else if(touchAxis==='y'&&scrollRoot)scrollRoot.scrollTo({top:touchStartScroll,behavior:'smooth'});
+        unlockPageSwipe(touchAxis==='x');
+        touchAxis=null;
+      },{passive:true});
+      track.addEventListener('touchcancel',()=>{
+        touchTracking=false;
+        unlockPageSwipe(touchAxis==='x');
+        touchAxis=null;
+      });
+      track.addEventListener('wheel',(event)=>{
+        if(Math.abs(event.deltaX)<=Math.abs(event.deltaY))return;
+        event.preventDefault();
+        const now=performance.now();
+        if(now-lastWheelAt<420)return;
+        lastWheelAt=now;
+        move(event.deltaX>0?1:-1);
+      },{passive:false});
+      track.addEventListener('keydown',(event)=>{
+        if(event.key==='ArrowRight'){event.preventDefault();move(1);}
+        if(event.key==='ArrowLeft'){event.preventDefault();move(-1);}
+      });
+      setActive(0);
+    }
   });
 })();
+
 </script>
 
 <script>
