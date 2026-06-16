@@ -249,14 +249,13 @@
   .partnerProofLabel{font-size:11px;line-height:1.1;font-weight:800;letter-spacing:2.1px;text-transform:uppercase;
     color:rgba(255,255,255,.86);white-space:nowrap;text-shadow:0 1px 8px rgba(70,30,12,.36)}
   .partnerProofLogos{display:flex;align-items:center;justify-content:flex-end;gap:14px;min-width:0}
-  .partnerLogo{display:flex;align-items:center;justify-content:center;min-width:0;padding:10px 13px;border-radius:16px;
+  .partnerLogo{display:flex;align-items:center;justify-content:center;flex:0 0 216px;width:216px;height:58px;min-width:0;
+    padding:10px 13px;border-radius:16px;
     background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.07));
     border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
-  .partnerLogo img{display:block;max-width:100%;height:auto;max-height:36px;object-fit:contain;
+  .partnerLogo img{display:block;width:172px;height:36px;object-fit:contain;object-position:center;
     filter:brightness(0) invert(1) drop-shadow(0 1px 8px rgba(70,30,12,.30));
     opacity:.98}
-  .partnerLogoSk img{width:164px}
-  .partnerLogoMik img{width:214px}
 
   .rail{grid-column:2;grid-row:2;position:relative;align-self:center;height:100%;min-height:420px;display:none}
   .cubewrap{--c:clamp(168px,17vw,250px);position:absolute;top:6%;right:3%;
@@ -405,9 +404,8 @@
       width:auto;padding:14px 13px;border-radius:20px;gap:11px;align-items:flex-start;flex-direction:column}
     .partnerProofLabel{font-size:9px;letter-spacing:1.7px;color:rgba(255,255,255,.92)}
     .partnerProofLogos{width:100%;justify-content:space-between;gap:10px}
-    .partnerLogo{padding:9px 10px;border-radius:14px}
-    .partnerLogoSk img{width:128px;max-height:30px}
-    .partnerLogoMik img{width:178px;max-height:30px}
+    .partnerLogo{flex:1 1 0;width:auto;height:52px;padding:9px 10px;border-radius:14px}
+    .partnerLogo img{width:126px;height:30px}
   }
 
   /* ===================== entry intro + full-page snap scroll ===================== */
